@@ -3,42 +3,40 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const apiKey = process.env.GEMINI_API_KEY
+  const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY not configured' })
+    return res.status(500).json({ error: 'GROQ_API_KEY not configured' })
   }
 
   try {
     const { system, messages, max_tokens } = req.body
 
-    const contents = messages.map(msg => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }],
-    }))
+    const groqMessages = [
+      { role: 'system', content: system },
+      ...messages,
+    ]
 
-    const geminiBody = {
-      systemInstruction: { parts: [{ text: system }] },
-      generationConfig: { maxOutputTokens: max_tokens || 1000 },
-      contents,
-    }
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(geminiBody),
-      }
-    )
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: groqMessages,
+        max_tokens: max_tokens || 1000,
+      }),
+    })
 
     const data = await response.json()
 
     if (!response.ok) {
-      console.error('Gemini error:', response.status, JSON.stringify(data))
+      console.error('Groq error:', response.status, JSON.stringify(data))
       return res.status(response.status).json(data)
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    const text = data.choices?.[0]?.message?.content || ''
     return res.status(200).json({ content: [{ text }] })
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' })
