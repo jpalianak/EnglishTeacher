@@ -54,7 +54,6 @@ export default function Home() {
   const [spanishOn, setSpanishOn] = useState(true)
   const [detail, setDetail] = useState('full')
   const [messages, setMessages] = useState([])
-  const [history, setHistory] = useState([])
   const [status, setStatus] = useState('Listo')
   const [liveText, setLiveText] = useState('Presioná el micrófono y hablá en inglés...')
   const [listening, setListening] = useState(false)
@@ -102,7 +101,6 @@ export default function Home() {
 
   const startConversation = useCallback((lvl, tpc, spOn, det) => {
     historyRef.current = []
-    setHistory([])
     setMessages([{ type: 'system', text: 'Conversación iniciada.' }])
     sendToTeacherDirect(
       'Hello, I am ready to start. Please greet me briefly and ask an opening question appropriate for my level.',
@@ -118,7 +116,6 @@ export default function Home() {
   async function sendToTeacherDirect(userText, hist, lvl, tpc, spOn, det) {
     const newHist = [...hist, { role: 'user', content: userText }]
     historyRef.current = newHist
-    setHistory(newHist)
     if (userText !== 'Hello, I am ready to start. Please greet me briefly and ask an opening question appropriate for my level.') {
       setMessages(m => [...m, { type: 'student', text: userText }])
     }
@@ -129,7 +126,6 @@ export default function Home() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
           max_tokens: 1000,
           system: buildSystemPrompt(lvl, tpc, spOn, det),
           messages: newHist,
@@ -139,7 +135,6 @@ export default function Home() {
       const raw = data.content?.[0]?.text || 'Sorry, I had trouble responding.'
       const updatedHist = [...newHist, { role: 'assistant', content: raw }]
       historyRef.current = updatedHist
-      setHistory(updatedHist)
       const { en, es } = parseReply(raw)
       setMessages(m => [...m, { type: 'teacher', en, es }])
       setStatus('Listo')
