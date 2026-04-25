@@ -233,6 +233,7 @@ export default function Home() {
   const [showResults, setShowResults] = useState(false)
   const [passageVisible, setPassageVisible] = useState(false)
   const [listeningPlaying, setListeningPlaying] = useState(false)
+  const [listeningPaused, setListeningPaused] = useState(false)
 
   const chatRef = useRef(null)
   const recognitionRef = useRef(null)
@@ -410,6 +411,9 @@ export default function Home() {
   // ── Listening tab ───────────────────────────────────────────────────────────
 
   async function generateListening() {
+    synthRef.current?.cancel()
+    setListeningPlaying(false)
+    setListeningPaused(false)
     setListeningStatus('generating')
     setListeningData(null)
     setSelectedAnswers([])
@@ -428,9 +432,23 @@ export default function Home() {
 
   async function playPassage() {
     if (!listeningData?.passage) return
+    const synth = synthRef.current
+    if (!synth) return
+    if (listeningPlaying && !listeningPaused) {
+      synth.pause()
+      setListeningPaused(true)
+      return
+    }
+    if (listeningPaused) {
+      synth.resume()
+      setListeningPaused(false)
+      return
+    }
     setListeningPlaying(true)
+    setListeningPaused(false)
     await speakText(listeningData.passage, LISTENING_RATES[level] ?? 0.9)
     setListeningPlaying(false)
+    setListeningPaused(false)
   }
 
   function selectAnswer(qIdx, aIdx) {
@@ -659,13 +677,13 @@ export default function Home() {
                 <div className="passage-header">
                   <div className="passage-title">Pasaje de audio</div>
                   <div className="passage-actions">
-                    <button className={`btn-play${listeningPlaying ? ' playing' : ''}`} onClick={playPassage} disabled={listeningPlaying}>
+                    <button className={`btn-play${listeningPlaying && !listeningPaused ? ' playing' : ''}`} onClick={playPassage}>
                       <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                        {listeningPlaying
+                        {listeningPlaying && !listeningPaused
                           ? <><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></>
                           : <path d="M8 5v14l11-7z"/>}
                       </svg>
-                      {listeningPlaying ? 'Reproduciendo...' : 'Reproducir'}
+                      {!listeningPlaying ? 'Reproducir' : listeningPaused ? 'Reanudar' : 'Pausar'}
                     </button>
                     <button className="btn-ghost" onClick={() => setPassageVisible(v => !v)}>
                       {passageVisible ? 'Ocultar texto' : 'Ver texto'}
