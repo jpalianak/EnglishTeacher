@@ -308,11 +308,6 @@ export default function Home() {
     sendToTeacherDirect(getInitialMessage(tpc), [], lvl, tpc, spOn, cor)
   }, [])
 
-  useEffect(() => {
-    const t = setTimeout(() => startConversation(level, topic, spanishOn, correctionOn), 300)
-    return () => clearTimeout(t)
-  }, [])
-
   async function sendToTeacherDirect(userText, hist, lvl, tpc, spOn, cor) {
     const newHist = [...hist, { role: 'user', content: userText }]
     historyRef.current = newHist
@@ -362,16 +357,18 @@ export default function Home() {
     if (t) { setTypeText(''); sendToTeacher(t) }
   }
 
+  const conversationActive = messages.length > 0
+
   function handleLevelChange(val) {
     setLevel(val)
-    if (activeTab === 'conversation') startConversation(val, topic, spanishOn, correctionOn)
+    if (activeTab === 'conversation') { if (conversationActive) startConversation(val, topic, spanishOn, correctionOn) }
     else if (activeTab === 'exercises') { setExercise(null); setCorrection(null); setExAnswer('') }
     else { setListeningData(null); setListeningStatus('idle'); setSelectedAnswers([]); setShowResults(false); setPassageVisible(false) }
   }
 
-  function handleTopicChange(val)      { setTopic(val);       startConversation(level, val, spanishOn, correctionOn) }
-  function handleSpanishToggle(val)    { setSpanishOn(val);   startConversation(level, topic, val, correctionOn) }
-  function handleCorrectionToggle(val) { setCorrectionOn(val);startConversation(level, topic, spanishOn, val) }
+  function handleTopicChange(val)      { setTopic(val);       if (conversationActive) startConversation(level, val, spanishOn, correctionOn) }
+  function handleSpanishToggle(val)    { setSpanishOn(val);   if (conversationActive) startConversation(level, topic, val, correctionOn) }
+  function handleCorrectionToggle(val) { setCorrectionOn(val);if (conversationActive) startConversation(level, topic, spanishOn, val) }
 
   // ── Exercises tab ───────────────────────────────────────────────────────────
 
@@ -531,46 +528,59 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="chat-box" ref={chatRef}>
-            {messages.map((msg, i) => {
-              if (msg.type === 'system') return <div key={i} className="msg system">{msg.text}</div>
-              if (msg.type === 'student') return <div key={i} className="msg student">{msg.text}</div>
-              if (msg.type === 'feedback') return (
-                <div key={i} className="msg feedback">
-                  <div className="feedback-label">Corrección</div>
-                  <div>{renderFeedbackText(msg.text)}</div>
-                </div>
-              )
-              return (
-                <div key={i} className="msg teacher">
-                  <div className="en-part">{msg.en}</div>
-                  {msg.es && <div className="es-part"><div className="es-label">En español</div><div>{msg.es}</div></div>}
-                </div>
-              )
-            })}
-          </div>
-
-          <div className="voice-section">
-            <div className="voice-main">
-              <button className={`mic-btn${listening ? ' listening' : ''}`} onClick={handleMic}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <rect x="9" y="2" width="6" height="12" rx="3" />
-                  <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8" />
-                </svg>
+          {!conversationActive ? (
+            <div className="empty-state">
+              <div className="empty-icon">🎙️</div>
+              <p>Elegí un modo y empezá a practicar</p>
+              <button className="btn-primary" style={{ marginTop: '1.25rem' }}
+                onClick={() => startConversation(level, topic, spanishOn, correctionOn)}>
+                Iniciar conversación
               </button>
-              <div className="voice-info">
-                <div className={`voice-live${isPlaceholder ? ' placeholder' : ''}`}>{liveText}</div>
-                <div className="voice-status">{status}</div>
-              </div>
             </div>
-            {speaking && <div className="speaking-bar"><span className="dot" />Profesor hablando...</div>}
-          </div>
+          ) : (
+            <>
+              <div className="chat-box" ref={chatRef}>
+                {messages.map((msg, i) => {
+                  if (msg.type === 'system') return <div key={i} className="msg system">{msg.text}</div>
+                  if (msg.type === 'student') return <div key={i} className="msg student">{msg.text}</div>
+                  if (msg.type === 'feedback') return (
+                    <div key={i} className="msg feedback">
+                      <div className="feedback-label">Corrección</div>
+                      <div>{renderFeedbackText(msg.text)}</div>
+                    </div>
+                  )
+                  return (
+                    <div key={i} className="msg teacher">
+                      <div className="en-part">{msg.en}</div>
+                      {msg.es && <div className="es-part"><div className="es-label">En español</div><div>{msg.es}</div></div>}
+                    </div>
+                  )
+                })}
+              </div>
 
-          <div className="type-row">
-            <input type="text" value={typeText} onChange={e => setTypeText(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="O escribí aquí en inglés..." />
-            <button onClick={handleSend}>Enviar</button>
-          </div>
+              <div className="voice-section">
+                <div className="voice-main">
+                  <button className={`mic-btn${listening ? ' listening' : ''}`} onClick={handleMic}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                      <rect x="9" y="2" width="6" height="12" rx="3" />
+                      <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8" />
+                    </svg>
+                  </button>
+                  <div className="voice-info">
+                    <div className={`voice-live${isPlaceholder ? ' placeholder' : ''}`}>{liveText}</div>
+                    <div className="voice-status">{status}</div>
+                  </div>
+                </div>
+                {speaking && <div className="speaking-bar"><span className="dot" />Profesor hablando...</div>}
+              </div>
+
+              <div className="type-row">
+                <input type="text" value={typeText} onChange={e => setTypeText(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="O escribí aquí en inglés..." />
+                <button onClick={handleSend}>Enviar</button>
+              </div>
+            </>
+          )}
         </div>
       )}
 
