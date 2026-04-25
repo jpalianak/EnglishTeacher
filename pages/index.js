@@ -476,7 +476,7 @@ export default function Home() {
 
       {/* ── Conversation tab ── */}
       {activeTab === 'conversation' && (
-        <>
+        <div className="tab-content">
           <div className="controls-panel">
             <div className="controls-grid">
               <div className="ctrl">
@@ -553,7 +553,7 @@ export default function Home() {
               onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="O escribí aquí en inglés..." />
             <button onClick={handleSend}>Enviar</button>
           </div>
-        </>
+        </div>
       )}
 
       {/* ── Exercises tab ── */}
