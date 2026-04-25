@@ -103,6 +103,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
 }
 
 .controls-grid {
@@ -507,6 +508,10 @@ select:focus {
   padding: 3rem 1rem;
   color: var(--text2);
   font-size: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%;
 }
 
 .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
