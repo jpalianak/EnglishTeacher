@@ -66,9 +66,9 @@ Level: ${level}. Topic: ${topic}.
 Create ONE exercise. Vary the type each time: fill-in-the-blank, correct-the-error, rewrite-the-sentence, choose-the-right-form, or translate-to-English.
 
 Respond in this exact format (nothing else):
-TIPO: [exercise type in Spanish]
+TIPO: [exercise type in English]
 EJERCICIO: [the exercise — use ___ for blanks]
-PISTA: [optional brief hint in Spanish]
+PISTA: [optional brief hint in English]
 
 Do not include the answer.`
 }
@@ -80,9 +80,9 @@ Exercise: ${ejercicio}
 Student answer: ${respuesta}
 
 Respond in this exact format (nothing else):
-CORRECTO: Sí / No / Parcialmente
+CORRECTO: Yes / No / Partially
 RESPUESTA: [the correct answer]
-EXPLICACION: [2-3 sentences in Spanish, warm and encouraging]`
+EXPLICACION: [2-3 sentences in English, warm and encouraging]`
 }
 
 function buildListeningPrompt(level) {
@@ -91,7 +91,7 @@ function buildListeningPrompt(level) {
 
 Write a varied, interesting passage (~${len[level]} words) — story, news item, description, dialogue, etc. Make it different every time. Use vocabulary and grammar appropriate for ${level}.
 
-Then write exactly 3 multiple-choice questions IN SPANISH about the passage.
+Then write exactly 3 multiple-choice questions IN ENGLISH about the passage.
 
 Use this exact format:
 
@@ -99,29 +99,29 @@ PASAJE:
 [passage text]
 
 PREGUNTAS:
-1. [question in Spanish]
+1. [question in English]
 A) [option]
 B) [option]
 C) [option]
 D) [option]
 RESPUESTA: [A/B/C/D]
-EXPLICACION: [brief explanation in Spanish]
+EXPLICACION: [brief explanation in English]
 
-2. [question in Spanish]
+2. [question in English]
 A) [option]
 B) [option]
 C) [option]
 D) [option]
 RESPUESTA: [A/B/C/D]
-EXPLICACION: [brief explanation in Spanish]
+EXPLICACION: [brief explanation in English]
 
-3. [question in Spanish]
+3. [question in English]
 A) [option]
 B) [option]
 C) [option]
 D) [option]
 RESPUESTA: [A/B/C/D]
-EXPLICACION: [brief explanation in Spanish]`
+EXPLICACION: [brief explanation in English]`
 }
 
 // ── Parsers ──────────────────────────────────────────────────────────────────
@@ -616,10 +616,10 @@ export default function Home() {
           )}
 
           {correction && (
-            <div className={`correction-card ${correction.correcto.toLowerCase().startsWith('sí') ? 'correct' : 'incorrect'}`}>
+            <div className={`correction-card ${correction.correcto.toLowerCase().startsWith('yes') ? 'correct' : 'incorrect'}`}>
               <div className="correction-result">
-                {correction.correcto.toLowerCase().startsWith('sí') ? '✓ Correcto' :
-                 correction.correcto.toLowerCase() === 'parcialmente' ? '◑ Parcialmente correcto' : '✗ Incorrecto'}
+                {correction.correcto.toLowerCase().startsWith('yes') ? '✓ Correcto' :
+                 correction.correcto.toLowerCase().startsWith('partial') ? '◑ Parcialmente correcto' : '✗ Incorrecto'}
               </div>
               <div className="correction-answer"><strong>Respuesta correcta:</strong> {correction.respuesta}</div>
               <div className="correction-explanation">{correction.explicacion}</div>

@@ -456,8 +456,15 @@ select:focus {
 .controls-panel .controls-grid { grid-template-columns: 1fr 1fr 1fr; }
 
 /* ── Tab content ──────────────────────────── */
-.tab-content { display: flex; flex-direction: column; gap: 1rem; width: 100%; }
-.tab-content > * { width: 100%; }
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+.tab-content > * { width: 100%; min-width: 0; }
 
 /* ── Shared buttons ──────────────────────── */
 .btn-primary {
@@ -512,6 +519,7 @@ select:focus {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  width: 100%;
 }
 
 /* ── Exercise ─────────────────────────────── */
@@ -538,6 +546,7 @@ select:focus {
   border-radius: var(--radius-lg);
   padding: 1.25rem;
   box-shadow: var(--shadow-xs);
+  width: 100%;
 }
 
 .exercise-type {
@@ -584,6 +593,7 @@ select:focus {
   border-radius: var(--radius-lg);
   padding: 1.125rem 1.25rem;
   border: 1px solid;
+  width: 100%;
 }
 
 .correction-card.correct { background: var(--teal-bg); border-color: rgba(13,148,136,0.25); }
@@ -603,6 +613,7 @@ select:focus {
   border-radius: var(--radius-lg);
   padding: 1.125rem 1.25rem;
   box-shadow: var(--shadow-xs);
+  width: 100%;
 }
 
 .passage-header {
@@ -734,6 +745,7 @@ select:focus {
   border: 1px solid var(--border2);
   border-radius: var(--radius-lg);
   padding: 1rem 1.25rem;
+  width: 100%;
 }
 
 .results-score { font-size: 16px; font-weight: 700; color: var(--teal-text); }
